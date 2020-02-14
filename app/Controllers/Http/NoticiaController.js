@@ -12,11 +12,10 @@ class NoticiaController {
    * GET noticias
    *
    * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
    */
-  async index({ request, response, view }) {}
+  async index({}) {
+    return await Noticia.all();
+  }
 
   /**
    * Create/save a new noticia.
@@ -68,20 +67,13 @@ class NoticiaController {
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
-   * @param {View} ctx.view
    */
-  async show({ params, request, response, view }) {}
+  async show({ params }) {
+    const { id } = params;
+    const noticia = await Noticia.find(id);
 
-  /**
-   * Render a form to update an existing noticia.
-   * GET noticias/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit({ params, request, response, view }) {}
+    return noticia;
+  }
 
   /**
    * Update noticia details.
@@ -98,10 +90,15 @@ class NoticiaController {
    * DELETE noticias/:id
    *
    * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
    */
-  async destroy({ params, request, response }) {}
+  async destroy({ params, response }) {
+    const { id } = params;
+    const noticia = await Noticia.find(id);
+
+    await noticia.delete();
+
+    response.send("Noticia excluida com sucesso");
+  }
 }
 
 module.exports = NoticiaController;

@@ -1,8 +1,7 @@
 "use strict";
 
 const Noticia = use("App/Models/Noticia");
-const Helpers = use("Helpers");
-const Env = use("Env");
+const { resolve } = require("path");
 
 /**
  * Resourceful controller for interacting with noticias
@@ -35,28 +34,31 @@ class NoticiaController {
       "dt_publicacao"
     ]);
 
-    const image = request.file("imagem", {
-      types: ["image"],
-      size: "2mb"
-    });
+    try {
+      const image = request.file("imagem", {
+        types: ["image"],
+        size: "2mb"
+      });
 
-    const name = `${Date.now()}-${image.clientName}`;
-    await image.move(Helpers.publicPath("uploads"), {
-      name: name
-    });
+      const name = `${Date.now()}-${image.clientName}`;
+      await image.move(resolve("./public/uploads"), {
+        name: name
+      });
 
-    if (!image.moved()) {
-      return image.errors();
+      if (!image.moved()) {
+        return image.errors();
+      }
+
+      const newData = {
+        ...data,
+        imagem: image.fileName
+      };
+
+      const noticia = await Noticia.create(newData);
+      return noticia;
+    } catch {
+      response.internalServerError("Deu algum erro doido ai");
     }
-    console.log(image);
-    const newData = {
-      ...data,
-      imagem: `${Env.get("APP_URL")}/public/uploads/${image.fileName}`
-    };
-
-    const noticia = await Noticia.create(newData);
-
-    return noticia;
   }
 
   /**

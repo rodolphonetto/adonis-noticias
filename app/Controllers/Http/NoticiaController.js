@@ -1,6 +1,8 @@
 "use strict";
 
 const Noticia = use("App/Models/Noticia");
+const Helpers = use("Helpers");
+const Env = use("Env");
 
 /**
  * Resourceful controller for interacting with noticias
@@ -32,7 +34,27 @@ class NoticiaController {
       "conteudo",
       "dt_publicacao"
     ]);
-    const noticia = await Noticia.create(data);
+
+    const image = request.file("imagem", {
+      types: ["image"],
+      size: "2mb"
+    });
+
+    const name = `${Date.now()}-${image.clientName}`;
+    await image.move(Helpers.publicPath("uploads"), {
+      name: name
+    });
+
+    if (!image.moved()) {
+      return image.errors();
+    }
+    console.log(image);
+    const newData = {
+      ...data,
+      imagem: `${Env.get("APP_URL")}/public/uploads/${image.fileName}`
+    };
+
+    const noticia = await Noticia.create(newData);
 
     return noticia;
   }

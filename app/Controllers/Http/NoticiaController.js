@@ -3,28 +3,11 @@
 const Noticia = use("App/Models/Noticia");
 const { resolve } = require("path");
 
-/**
- * Resourceful controller for interacting with noticias
- */
 class NoticiaController {
-  /**
-   * Show a list of all noticias.
-   * GET noticias
-   *
-   * @param {object} ctx
-   */
   async index({}) {
     return await Noticia.all();
   }
 
-  /**
-   * Create/save a new noticia.
-   * POST noticias/nova
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async store({ request, response }) {
     const data = request.only([
       "titulo",
@@ -56,18 +39,10 @@ class NoticiaController {
       const noticia = await Noticia.create(newData);
       return noticia;
     } catch {
-      response.internalServerError("Deu algum erro doido ai");
+      response.internalServerError("Erro ao executar operação");
     }
   }
 
-  /**
-   * Display a single noticia.
-   * GET noticias/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async show({ params }) {
     const { id } = params;
     const noticia = await Noticia.find(id);
@@ -75,22 +50,36 @@ class NoticiaController {
     return noticia;
   }
 
-  /**
-   * Update noticia details.
-   * PUT or PATCH noticias/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update({ params, request, response }) {}
+  async update({ params, request }) {
+    const excludeNullFields = fields => {
+      Object.keys(fields).forEach(key => {
+        fields[key] === null && delete fields[key];
+      });
+      return fields;
+    };
 
-  /**
-   * Delete a noticia with id.
-   * DELETE noticias/:id
-   *
-   * @param {object} ctx
-   */
+    const data = request.only([
+      "titulo",
+      "imagem",
+      "conteudo",
+      "dt_publicacao"
+    ]);
+
+    const { id } = params;
+    try {
+      const newData = excludeNullFields(data);
+      const noticia = await Noticia.find(id);
+
+      noticia.merge(newData);
+
+      await noticia.save();
+
+      return noticia;
+    } catch (err) {
+      return err;
+    }
+  }
+
   async destroy({ params, response }) {
     const { id } = params;
     const noticia = await Noticia.find(id);

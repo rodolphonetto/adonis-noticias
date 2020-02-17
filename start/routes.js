@@ -19,4 +19,6 @@ Route.post("/noticias/nova", "NoticiaController.store").validator(
   "StoreNoticia"
 );
 
+Route.post("/noticias/atualizar/:id", "NoticiaController.update");
+
 Route.delete("/noticias/delete/:id", "NoticiaController.destroy");

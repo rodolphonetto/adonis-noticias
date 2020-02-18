@@ -13,7 +13,7 @@ Route.post("/sessions", "SessionController.create");
 // Noticias
 Route.get("/noticias", "NoticiaController.index");
 
-Route.get("/noticias/noticia", "NoticiaController.show");
+Route.get("/noticias/noticia:id", "NoticiaController.show");
 
 Route.post("/noticias/nova", "NoticiaController.store").validator(
   "StoreNoticia"

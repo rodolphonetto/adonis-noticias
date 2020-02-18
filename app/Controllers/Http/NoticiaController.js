@@ -5,7 +5,11 @@ const { resolve } = require("path");
 
 class NoticiaController {
   async index({}) {
-    return await Noticia.all();
+    try {
+      return await Noticia.all();
+    } catch {
+      response.internalServerError("Erro ao executar operação");
+    }
   }
 
   async store({ request, response }) {
@@ -44,10 +48,13 @@ class NoticiaController {
   }
 
   async show({ params }) {
-    const { id } = params;
-    const noticia = await Noticia.find(id);
-
-    return noticia;
+    try {
+      const { id } = params;
+      const noticia = await Noticia.find(id);
+      return noticia;
+    } catch {
+      response.internalServerError("Erro ao executar operação");
+    }
   }
 
   async update({ params, request }) {
@@ -76,17 +83,21 @@ class NoticiaController {
 
       return noticia;
     } catch (err) {
-      return err;
+      response.internalServerError("Erro ao executar operação");
     }
   }
 
   async destroy({ params, response }) {
-    const { id } = params;
-    const noticia = await Noticia.find(id);
+    try {
+      const { id } = params;
+      const noticia = await Noticia.find(id);
 
-    await noticia.delete();
+      await noticia.delete();
 
-    response.send("Noticia excluida com sucesso");
+      response.send("Noticia excluida com sucesso");
+    } catch {
+      response.internalServerError("Erro ao executar operação");
+    }
   }
 }
 
